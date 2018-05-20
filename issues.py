@@ -1,22 +1,33 @@
 from github import Github
 
-'''
-NOTE MUST USE PYTHON3
-'''
 
-# get Access Token from user
-access_token = input("Please provide a valid user token: ")
-# login using an access token
-g = Github(access_token)
+def get_issues_for_org(org):
+	""" Get all open issues for the given org """
+	res = {}
+	for repo in org.get_repos():
+		res[repo.name] = get_issues_for_repo(repo)
+	return res
+		
+def get_issues_for_repo(repo):
+	""" Get all open issues for the given repository """
+	res = []
+	issues = repo.get_issues()
+	for issue in issues:
+		issue_entry = {}
+		issue_entry['title'] = issue.title
+		issue_entry['created_by'] = issue.user.name
+		issue_entry['body'] = issue.body
+		issue_entry['labels'] = [label.name for label in issue.labels]
+		issue_entry['comments'] = get_comments_for_issue(issue)
+		res.append(issue_entry)
+	return res
 
-org = g.get_organization('cromaLab')
-repo = org.get_repo('Onboarding')
-issues = repo.get_issues()
-
-for issue in issues:
-	print(issue.body)
-
-
-
-
-#file_contents = repo.get_file_contents('path/to/file')
+def get_comments_for_issue(issue):
+	""" Get all comments for the given issue """
+	res = []
+	for comment in issue.get_comments():
+		comment_entry = {}
+		comment_entry['created_by'] = comment.user.name
+		comment_entry['body'] = comment.body
+		res.append(comment_entry)
+	return res
