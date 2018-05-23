@@ -9,16 +9,19 @@ def get_issues_for_org(org):
 	return res
 		
 def get_issues_for_repo(repo):
-	""" Get all open issues for the given repository """
+	""" Get all closed issues for the given repository """
 	res = []
-	issues = repo.get_issues()
-	for issue in issues:
+	issues = repo.get_issues(state='closed')
+	i = 0
+	for issue in issues[1000:2000]:
+		print(i)
+		i += 1
 		issue_entry = {}
 		issue_entry['title'] = issue.title
 		issue_entry['created_by'] = issue.user.name
 		issue_entry['body'] = issue.body
 		issue_entry['labels'] = [label.name for label in issue.labels]
-		issue_entry['comments'] = get_comments_for_issue(issue)
+		#issue_entry['comments'] = get_comments_for_issue(issue)
 		res.append(issue_entry)
 	return res
 
