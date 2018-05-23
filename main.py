@@ -13,7 +13,7 @@ repo = g.get_repo(10270250)
 issues = get_issues_for_repo(repo)
 #commits = get_commits_for_repo(repo)
 
-with open('react_issues2.json', 'w') as fp:
+with open('data/react/react_issues3.json', 'w') as fp:
     json.dump(issues, fp, indent=4)
 
 #with open('legion_tools_commits.json', 'w') as fp:

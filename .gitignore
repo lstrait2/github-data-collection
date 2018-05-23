@@ -1,3 +1,4 @@
 token.txt
 __pycache__/*
 *.json
+.DS_Store

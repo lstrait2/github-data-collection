@@ -13,7 +13,7 @@ def get_issues_for_repo(repo):
 	res = []
 	issues = repo.get_issues(state='closed')
 	i = 0
-	for issue in issues[1000:2000]:
+	for issue in issues[1999:3000]:
 		print(i)
 		i += 1
 		issue_entry = {}
