@@ -3,8 +3,45 @@ Goal: Build a simple, rules-based classifier that identifies issues that are sma
 algorithm or code changes.
 '''
 
+def preprocess_issue(issue):
+	""" Remove code from issue templates and any other pre-processing that needs done """
+	templates = ["Note: if the issue is about documentation or the website, please file it at:"]
+	issue_body = issue['body']
+	if not issue_body:
+		return issue
+	for template in templates:
+		issue_body = issue_body.replace(template, '')
+	issue_body = issue_body.replace('\r', '')
+	issue_body = issue_body.replace('\n', '')
+	issue['body'] = issue_body
+	return issue
+
+def classify_issues(issues):
+	return [classify_issue(preprocess_issue(issue)) for issue in issues]	
 
 
 def classify_issue(issue):
 	""" returns true if the given issue is a small style/documentation change """
-	
+	return (is_readme_change(issue) or is_documentation_change(issue) or is_labeled_easy(issue))
+
+
+def is_readme_change(issue):
+	if not issue['title'] or not issue['body']:
+		return False
+	if "README" in issue['title'] or "README" in issue['body']:
+		return True;
+
+def is_documentation_change(issue):
+	if not issue['title'] or not issue['body']:
+		return False
+	if "documentation" in issue['title'] or "documentation" in issue['body']:
+		return True;
+
+def is_labeled_easy(issue):
+	""" return true if the issue has a label indicating it is a beginner friendly issue
+		(e.g. "good first issue" or "Difficulty starter). Note these labels are repository-specific """
+	for label in issue['labels']:
+		if  "first issue" in label or "starter" in label or "mentorship" in label:
+			print(label)
+			return True
+	return False

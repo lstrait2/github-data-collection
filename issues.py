@@ -12,10 +12,7 @@ def get_issues_for_repo(repo):
 	""" Get all closed issues for the given repository """
 	res = []
 	issues = repo.get_issues(state='closed')
-	i = 0
-	for issue in issues[1999:3000]:
-		print(i)
-		i += 1
+	for issue in issues[4000:5000]:
 		issue_entry = {}
 		issue_entry['title'] = issue.title
 		issue_entry['created_by'] = issue.user.name
