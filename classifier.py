@@ -1,6 +1,8 @@
 '''
+
 Goal: Build a simple, rules-based classifier that identifies issues that are small, stylistic changes as opposed to larger, more signficant
 algorithm or code changes.
+
 '''
 
 def preprocess_issue(issue):
@@ -22,26 +24,28 @@ def classify_issues(issues):
 
 def classify_issue(issue):
 	""" returns true if the given issue is a small style/documentation change """
-	return (is_readme_change(issue) or is_documentation_change(issue) or is_labeled_easy(issue))
-
-
-def is_readme_change(issue):
 	if not issue['title'] or not issue['body']:
 		return False
+	return (is_readme_change(issue) or is_documentation_change(issue) or is_labeled_easy(issue))
+
+def is_readme_change(issue):
 	if "README" in issue['title'] or "README" in issue['body']:
 		return True;
 
 def is_documentation_change(issue):
-	if not issue['title'] or not issue['body']:
-		return False
-	if "documentation" in issue['title'] or "documentation" in issue['body']:
+	if "documentation" in issue['title'] or "documentation" in issue['body'] or "docs" in issue['title']:
 		return True;
+	return False
 
 def is_labeled_easy(issue):
 	""" return true if the issue has a label indicating it is a beginner friendly issue
 		(e.g. "good first issue" or "Difficulty starter). Note these labels are repository-specific """
 	for label in issue['labels']:
 		if  "first issue" in label or "starter" in label or "mentorship" in label:
-			print(label)
 			return True
+	return False
+
+def is_typo_change(issue):
+	if "typo" in issue['title'] or "documentation" in issue['body'] or "typo" in issue['title']:
+		return True;
 	return False

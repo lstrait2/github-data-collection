@@ -13,8 +13,8 @@ g = Github(access_token)
 
 #org = g.get_organization('cromaLab')
 repo = g.get_repo(10270250)
-issues = get_issues_for_repo(repo)
+issues = get_issues_for_repo(g, repo)
 #commits = get_commits_for_repo(repo)
 
-with open('data/react/react_issues5.json', 'w') as fp:
+with open('data/react/react_issues9.json', 'w') as fp:
     json.dump(issues, fp, indent=4)

@@ -8,11 +8,13 @@ def get_issues_for_org(org):
 		res[repo.name] = get_issues_for_repo(repo)
 	return res
 		
-def get_issues_for_repo(repo):
+def get_issues_for_repo(g, repo):
 	""" Get all closed issues for the given repository """
 	res = []
-	issues = repo.get_issues(state='closed')
-	for issue in issues[4000:5000]:
+	# Note: must specify type:issue or this query will also return PRs!!!
+	issues = g.search_issues(query='', **{'repo':'facebook/react', 'type':'issue'})
+	#issues = repo.get_issues(state='closed')
+	for issue in issues[:2000]:
 		issue_entry = {}
 		issue_entry['title'] = issue.title
 		issue_entry['created_by'] = issue.user.name
