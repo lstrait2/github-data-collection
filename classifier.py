@@ -29,7 +29,7 @@ def classify_issue(issue):
 	return (is_readme_change(issue) or is_documentation_change(issue) or is_labeled_easy(issue))
 
 def is_readme_change(issue):
-	if "README" in issue['title'] or "README" in issue['body']:
+	if "README" in issue['title'] or "README" in issue['body'] or ".md" in issue['title'] or ".md" in issue['body']:
 		return True;
 
 def is_documentation_change(issue):

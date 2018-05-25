@@ -1,35 +1,38 @@
-from github import Github
+import json
+import re
+import requests
+
+from time import sleep
 
 
-def get_issues_for_org(org):
-	""" Get all open issues for the given org """
-	res = {}
-	for repo in org.get_repos():
-		res[repo.name] = get_issues_for_repo(repo)
-	return res
-		
-def get_issues_for_repo(g, repo):
-	""" Get all closed issues for the given repository """
-	res = []
-	# Note: must specify type:issue or this query will also return PRs!!!
-	issues = g.search_issues(query='', **{'repo':'facebook/react', 'type':'issue'})
-	#issues = repo.get_issues(state='closed')
-	for issue in issues[:2000]:
-		issue_entry = {}
-		issue_entry['title'] = issue.title
-		issue_entry['created_by'] = issue.user.name
-		issue_entry['body'] = issue.body
-		issue_entry['labels'] = [label.name for label in issue.labels]
-		#issue_entry['comments'] = get_comments_for_issue(issue)
-		res.append(issue_entry)
-	return res
+def get_issues(repo, state):
+	""" Returns list containing all issues in the given repo with state """
+	issues = []
+	date = '2000-01-01'
+	# Search API can only return 1000 results at a time, so need to break calls apart by time period
+	while True:
+		r = requests.get('https://api.github.com/search/issues?q=%22%22+repo:%s+type:issue+state:%s+created:>%s&sort=created&order=asc' % (repo,state,date))
+		# no more issues to collect, write to file and return
+		if r.json()['total_count'] == 0:
+			return issues
+		issues.extend(r.json()['items'])
+		next_page, last_page = re.findall(r'\<(.*?)\>', r.headers['Link'])
+		page = 2
+		while next_page != last_page:
+			# sleep for a minute every 9 pages to avoid rate limiting
+			if page % 9 == 0:
+				sleep(60)
+			r = requests.get(next_page)
+			issues.extend(r.json()['items'])
+			_, next_page, _ , _ = re.findall(r'\<(.*?)\>', r.headers['Link'])
+			page += 1
+		r = requests.get(last_page)
+		issues.extend(r.json()['items'])
+		date = issues[-1]['created_at'][:10]
+		# sleep before next iteration to avoid rate limiting
+		sleep(60)
 
-def get_comments_for_issue(issue):
-	""" Get all comments for the given issue """
-	res = []
-	for comment in issue.get_comments():
-		comment_entry = {}
-		comment_entry['created_by'] = comment.user.name
-		comment_entry['body'] = comment.body
-		res.append(comment_entry)
-	return res
+
+issues = get_issues('facebook/react', 'open')
+with open('data/react/react_issues_open.txt', 'w') as f:
+    json.dump(issues, f, indent=4)

@@ -2,7 +2,7 @@ import json
 
 from classifier import classify_issues
 
-with open('data/react/react_issues2.json') as f:
+with open('data/react/react_issues_open.json') as f:
     issues = json.load(f)
 
 labels = classify_issues(issues)
