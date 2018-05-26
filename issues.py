@@ -11,12 +11,17 @@ def get_issues(repo, state):
 	date = '2000-01-01'
 	# Search API can only return 1000 results at a time, so need to break calls apart by time period
 	while True:
+		print(date)
 		r = requests.get('https://api.github.com/search/issues?q=%22%22+repo:%s+type:issue+state:%s+created:>%s&sort=created&order=asc' % (repo,state,date))
 		# no more issues to collect, write to file and return
 		if r.json()['total_count'] == 0:
 			return issues
 		issues.extend(r.json()['items'])
+		if 'Link' not in r.headers:
+			return issues
 		next_page, last_page = re.findall(r'\<(.*?)\>', r.headers['Link'])
+		print(next_page)
+		print(last_page)
 		page = 2
 		while next_page != last_page:
 			# sleep for a minute every 9 pages to avoid rate limiting
@@ -33,6 +38,6 @@ def get_issues(repo, state):
 		sleep(60)
 
 
-issues = get_issues('facebook/react', 'open')
-with open('data/react/react_issues_open.txt', 'w') as f:
+issues = get_issues('nodejs/node', 'open')
+with open('data/nodejs/nodejs_issues_open.json', 'w') as f:
     json.dump(issues, f, indent=4)
