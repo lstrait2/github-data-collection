@@ -5,7 +5,7 @@ import requests
 from time import sleep
 
 
-def get_issues(repo, state):
+def get_issues_query(repo, state):
 	""" Returns list containing all issues in the given repo with state """
 	issues = []
 	date = '2000-01-01'
@@ -37,7 +37,22 @@ def get_issues(repo, state):
 		# sleep before next iteration to avoid rate limiting
 		sleep(60)
 
+def get_issue_by_id(issues, issue_id):
+	""" get issue with the given issue_id """
+	for issue in issues:
+		if issue['id'] == issue_id:
+			return isssue
+	return None
 
-issues = get_issues('nodejs/node', 'open')
+def get_issue_by_title(issues, issue_title):
+	""" get issue(s) with the given issue_id """
+	return [issue for issue in issues if issue['title'] == issue_title]
+
+def get_issue_by_label(issues, label_name):
+	return [issue for issue in issues if label_name in issue['labels']]
+
+'''
+issues = get_issues_query('nodejs/node', 'open')
 with open('data/nodejs/nodejs_issues_open.json', 'w') as f:
     json.dump(issues, f, indent=4)
+'''

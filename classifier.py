@@ -15,7 +15,8 @@ def preprocess_issue(issue):
 		issue_body = issue_body.replace(template, '')
 	issue_body = issue_body.replace('\r', '')
 	issue_body = issue_body.replace('\n', '')
-	issue['body'] = issue_body
+	issue['body'] = issue_body.lower()
+	issue['title'] = issue['title'].lower()
 	return issue
 
 def classify_issues(issues):
