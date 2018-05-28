@@ -66,10 +66,12 @@ def get_word_freq(issues, key):
 	word_freqs = {}
 	#TODO: find a more comprehensive list of stop words
 	stop_words = ["in", "the", "or", "and", "for", "to", "not", "on", "and", "a", "of", "as", "an", "with", "when", "are", "-", "how", "from", "is", "does", "doesn't",
-				  "be", "if"]
+				  "be", "if", "can", "so", "we", "you", "i", "have", "at", "but", "this", "that", "would", "should", "by", "can't", "it", "my", "its", "there", "was",
+				  "do", "use", "", "which", "some", "will", "what", "want"]
 	for issue in issues:
 		# remove non alphanumeric characters
 		for word in issue[key].split():
+			word = re.sub(r'\W+', '', word)
 			if word not in stop_words:
 				word_freqs[word] = word_freqs.get(word, 0) + 1
 				total_words += 1
