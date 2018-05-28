@@ -49,7 +49,33 @@ def get_issue_by_title(issues, issue_title):
 	return [issue for issue in issues if issue['title'] == issue_title]
 
 def get_issue_by_label(issues, label_name):
+	""" get all issues that are assigned the given label """ 
 	return [issue for issue in issues if label_name in issue['labels']]
+
+def get_word_freq_title(issues):
+	""" get the word frequencies in the titles of issues """
+	return get_word_freq(issues, 'title')
+
+def get_word_freq_body(issues):
+	""" get the word frequencies in the bodies of issues """
+	return get_word_freq(issues, 'body')
+
+def get_word_freq(issues, key):
+	""" get the word frequencies in the 'key' field of issues """
+	total_words = 0
+	word_freqs = {}
+	#TODO: find a more comprehensive list of stop words
+	stop_words = ["in", "the", "or", "and", "for", "to", "not", "on", "and", "a", "of", "as", "an", "with", "when", "are", "-", "how", "from", "is", "does", "doesn't",
+				  "be", "if"]
+	for issue in issues:
+		# remove non alphanumeric characters
+		for word in issue[key].split():
+			if word not in stop_words:
+				word_freqs[word] = word_freqs.get(word, 0) + 1
+				total_words += 1
+	for word in word_freqs:
+		word_freqs[word] /= total_words
+	return word_freqs
 
 '''
 issues = get_issues_query('nodejs/node', 'open')
