@@ -34,7 +34,7 @@ def is_readme_change(issue):
 		return True;
 
 def is_documentation_change(issue):
-	if "documentation" in issue['title'] or "documentation" in issue['body'] or "docs" in issue['title']:
+	if "documentation" in issue['title'] or "documentation" in issue['body'] or "doc" in issue['title'] or "link" in issue['title']:
 		return True;
 	return False
 

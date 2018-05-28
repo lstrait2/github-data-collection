@@ -67,7 +67,7 @@ def get_word_freq(issues, key):
 	#TODO: find a more comprehensive list of stop words
 	stop_words = ["in", "the", "or", "and", "for", "to", "not", "on", "and", "a", "of", "as", "an", "with", "when", "are", "-", "how", "from", "is", "does", "doesn't",
 				  "be", "if", "can", "so", "we", "you", "i", "have", "at", "but", "this", "that", "would", "should", "by", "can't", "it", "my", "its", "there", "was",
-				  "do", "use", "", "which", "some", "will", "what", "want"]
+				  "do", "use", "", "which", "some", "will", "what", "want", "our", "your"]
 	for issue in issues:
 		# remove non alphanumeric characters
 		for word in issue[key].split():
@@ -104,7 +104,3 @@ issues = get_issues_query('nodejs/node', 'open')
 with open('data/nodejs/nodejs_issues_open.json', 'w') as f:
     json.dump(issues, f, indent=4)
 '''
-with open('data/react/react_issues_closed.json') as f:
-	    issues = json.load(f)
-for issue in issues:
-	print(get_code_in_issue(issue))
