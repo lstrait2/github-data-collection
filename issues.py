@@ -79,8 +79,32 @@ def get_word_freq(issues, key):
 		word_freqs[word] /= total_words
 	return word_freqs
 
+def get_code_in_issue(issue):
+	""" Returns any (formatted) code that is present in the body of the issue """
+	s = issue['body']
+	ret = []
+	try:
+		while(True):
+			# formatted code is enclosed in ``` ````
+			start = s.index("```") + 3
+			end = s.index("```", start )
+			# any valid HTML/JavaScript should have.
+			if ('{' in s[start:end+3] or '<' in s[start:end+3]):
+				ret.append(s[start:end+3])
+			s = s[end+3:]
+	except ValueError:
+		return ret
+
+def get_num_code_lines(issue):
+	""" Return the number of lines of (formatted) code in the body of an issue """
+	return sum([len(s) for s in get_code_in_issue(issue)])
+
 '''
 issues = get_issues_query('nodejs/node', 'open')
 with open('data/nodejs/nodejs_issues_open.json', 'w') as f:
     json.dump(issues, f, indent=4)
 '''
+with open('data/react/react_issues_closed.json') as f:
+	    issues = json.load(f)
+for issue in issues:
+	print(get_code_in_issue(issue))
