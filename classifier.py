@@ -27,11 +27,17 @@ def classify_issue(issue):
 	""" returns true if the given issue is a small style/documentation change """
 	if not issue['title'] or not issue['body']:
 		return False
-	return (is_readme_change(issue) or is_documentation_change(issue) or is_labeled_easy(issue))
+	return (is_readme_change(issue) or is_documentation_change(issue) or is_labeled_easy(issue) or is_refactor_change(issue) or is_typo_change(issue) or is_deprecated_change(issue))
+
+def is_refactor_change(issue):
+	if "refactor" in issue['title']:
+		return True
+	return False
 
 def is_readme_change(issue):
-	if "README" in issue['title'] or "README" in issue['body'] or ".md" in issue['title'] or ".md" in issue['body']:
+	if "readme" in issue['title'] or "readme" in issue['body'] or ".md" in issue['title'] or ".md" in issue['body']:
 		return True;
+	return False
 
 def is_documentation_change(issue):
 	if "documentation" in issue['title'] or "documentation" in issue['body'] or "doc" in issue['title'] or "link" in issue['title']:
@@ -42,11 +48,16 @@ def is_labeled_easy(issue):
 	""" return true if the issue has a label indicating it is a beginner friendly issue
 		(e.g. "good first issue" or "Difficulty starter). Note these labels are repository-specific """
 	for label in issue['labels']:
-		if  "first issue" in label or "starter" in label or "mentorship" in label:
+		if  "first issue" in label or "starter" in label or "easy" in label:
 			return True
 	return False
 
 def is_typo_change(issue):
-	if "typo" in issue['title'] or "documentation" in issue['body'] or "typo" in issue['title']:
+	if "typo" in issue['title'] or "typo" in issue['body']:
 		return True;
+	return False
+
+def is_deprecated_change(issue):
+	if "deprecated" in issue['title']:
+		return True
 	return False
