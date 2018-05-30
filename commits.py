@@ -1,33 +1,48 @@
+import json
+import re
 import requests
-from github import Github
 
-def get_commits_for_org(org):
-	""" Get all commits for the given org """
-	res = {}
-	for repo in org.get_repos():
-		res[repo.name] = get_commits_for_repo(repo)
-	return res
+from time import sleep
 
-def get_commits_for_repo(repo):
-	""" Get all open issues for the given repository """
-	res = []
-	commits = repo.get_commits()
-	i = 0
-	for commit in commits:
-		# ignore commits that are not associated with a user (e.g. WebFlow commits)
-		if not commit.author:
-			continue
-		commit_entry = {}
-		commit_entry['committed_by'] = commit.author.name
-		commit_entry['commit_diff'] = get_commit_diff(commit.commit.html_url)
-		commit_entry['commit_message'] = commit.commit.message
-		res.append(commit_entry)
-	return res
 
-def get_commit_diff(commit_url):
-	""" Get the diff for this commit
-		TODO: find a better way to parse the diff
-	"""
-	diff_url = commit_url + '.diff'
-	resp = requests.get(diff_url)
-	return resp.text
+def get_commits_query(repo):
+	""" Returns list containing all commits in the given repo  """
+	commits = []
+	date = '2000-01-01'
+	headers = {"Accept":"application/vnd.github.cloak-preview"}
+	# Search API can only return 1000 results at a time, so need to break calls apart by time period
+	while True:
+		print(date)
+		# commit search API in preview/testing phase, must specify accept header to access
+		r = requests.get('https://api.github.com/search/commits?q=%22%22+repo:%s+committer-date:>%s&sort=committer-date&order=asc' % (repo,date), headers=headers)
+		# no more issues to collect, write to file and return
+		if r.json()['total_count'] == 0:
+			return commits
+		commits.extend(r.json()['items'])
+		if 'Link' not in r.headers:
+			return commits
+		next_page, last_page = re.findall(r'\<(.*?)\>', r.headers['Link'])
+		print(next_page)
+		print(last_page)
+		page = 2
+		while next_page != last_page:
+			# sleep for a minute every 9 pages to avoid rate limiting
+			if page % 9 == 0:
+				sleep(60)
+			r = requests.get(next_page, headers=headers)
+			if (len(r.json()['items']) == 0):
+				print("retrying request")
+				page += 1
+				continue
+			commits.extend(r.json()['items'])
+			_, next_page, _ , _ = re.findall(r'\<(.*?)\>', r.headers['Link'])
+			page += 1
+		r = requests.get(last_page, headers=headers)
+		commits.extend(r.json()['items'])
+		date = commits[-1]['commit']['committer']['date'][:10]
+		# sleep before next iteration to avoid rate limiting
+		sleep(60)
+
+commits = get_commits_query("facebook/react")
+with open('data/react/react_commits.json', 'w') as f:
+    json.dump(commits, f, indent=4)
