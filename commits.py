@@ -43,6 +43,6 @@ def get_commits_query(repo):
 		# sleep before next iteration to avoid rate limiting
 		sleep(60)
 
-commits = get_commits_query("pytorch/torch")
+commits = get_commits_query("pytorch/pytorch")
 with open('data/pytorch/pytorch_commits.json', 'w') as f:
     json.dump(commits, f, indent=4)
