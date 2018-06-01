@@ -35,6 +35,10 @@ def get_commits_query(repo):
 				page += 1
 				continue
 			commits.extend(r.json()['items'])
+			if (len(re.findall(r'\<(.*?)\>', r.headers['Link'])) != 4):
+				print("retrying request")
+				page += 1
+				continue
 			_, next_page, _ , _ = re.findall(r'\<(.*?)\>', r.headers['Link'])
 			page += 1
 		r = requests.get(last_page, headers=headers)
@@ -43,6 +47,15 @@ def get_commits_query(repo):
 		# sleep before next iteration to avoid rate limiting
 		sleep(60)
 
-commits = get_commits_query("pytorch/pytorch")
-with open('data/pytorch/pytorch_commits.json', 'w') as f:
+commits = get_commits_query("nodejs/node")
+with open('data/nodejs/nodejs_commits.json', 'w') as f:
     json.dump(commits, f, indent=4)
+
+
+def get_commit_diff(commit_url):
+	""" Get the diff for this commit
+		TODO: find a better way to parse the diff
+	"""
+	diff_url = commit_url + '.diff'
+	resp = requests.get(diff_url)
+	return resp.text
