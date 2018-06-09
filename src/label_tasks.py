@@ -3,8 +3,8 @@ import requests
 
 def find_closing_pr(issue_id, prs):
 	""" Find the PR(s) that reference the given issue. That is it cotains "#{issue_id}" in its title or body """
-	issue_id_string = "#" + str(issue_id)
 	ret = []
+	issue_id_string = "#" + str(issue_id)
 	for pr in prs:
 		if issue_id_string in pr['title'] or issue_id_string in pr['body']:
 			# only want to consider PRs that were merged into master
@@ -14,10 +14,38 @@ def find_closing_pr(issue_id, prs):
 				ret.append(pr['id'])
 	return ret
 
-#def find_closing_commit(issue):
+def find_closing_commit(issue):
+	""" Find the commit that closes the given issue. That is a commit (for master branch) event exists for the issue """
+	ret = []
+	#TODO: move this enrichment of issue data somewhere else...
+	events= requests.get(issue['events_url']).json()
+	for event in events:
+		# make sure this event is a commit and that it is for the master branch of this project
+		if event['commit_id'] and get_repo_commit(event['commit_url']) == get_repo_event(event['url']):
+			ret.append(event['commit_id'])
+	return ret
+
+def get_repo_commit(commit_url):
+	""" Help method to strip out repo name from a commit event url """
+	commit_repo = commit_url.replace("https://api.github.com/repos/", "")
+	return commit_repo[:commit_repo.index("/commits")]
+
+def get_repo_event(event_url):
+	""" Help method to strip out repo name from a commit event url """
+	event_repo = event_url.replace("https://api.github.com/repos/", "")
+	return event_repo[:event_repo.index("/issues")]
 
 with open('data/react/react_pulls_open.json') as json_data:
     prs = json.load(json_data)
 
-print(find_closing_pr(6723, prs))
- 
+with open('data/react/react_issues_closed.json') as json_data:
+	issues = json.load(json_data)
+
+temp_issue = None
+for issue in issues:
+	if issue['number'] == 11257:
+		temp_issue = issue
+		break
+print(temp_issue)
+print(find_closing_commit(temp_issue))
+#print(find_closing_pr(6723, prs))
