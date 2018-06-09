@@ -34,6 +34,6 @@ def get_pulls_query(repo, state):
 		# sleep before next iteration to avoid rate limiting
 		sleep(60)
 
-issues = get_pulls_query('nodejs/node', 'open')
-with open('data/react/react_pulls_open.json', 'w') as f:
+issues = get_pulls_query('facebook/react', 'closed')
+with open('data/react/react_pulls_closed.json', 'w') as f:
     json.dump(issues, f, indent=4)
