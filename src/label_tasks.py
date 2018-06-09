@@ -26,21 +26,34 @@ def find_closing_commit(issue):
 	return ret
 
 def get_repo_commit(commit_url):
-	""" Help method to strip out repo name from a commit event url """
+	""" Helper method to strip out repo name from a commit event url """
 	commit_repo = commit_url.replace("https://api.github.com/repos/", "")
 	return commit_repo[:commit_repo.index("/commits")]
 
 def get_repo_event(event_url):
-	""" Help method to strip out repo name from a commit event url """
+	""" Helper method to strip out repo name from a commit event url """
 	event_repo = event_url.replace("https://api.github.com/repos/", "")
 	return event_repo[:event_repo.index("/issues")]
 
+
+def get_assignees(issue):
+	""" Return a list of all individuals who had been assigned to a task, in the order they were assigned """
+	assignees = []
+	#TODO: move this enrichment of issue data somewhere else...
+	events= requests.get(issue['events_url']).json()
+	for event in events:
+		if event['event'] == "assigned":
+			assignees.append(event['assignee']['login'])
+	return assignees
+
+
+
 with open('data/react/react_pulls_open.json') as json_data:
     prs = json.load(json_data)
-
 with open('data/react/react_issues_closed.json') as json_data:
 	issues = json.load(json_data)
-
+with open('data/tensorflow/tensorflow_issues_closed.json') as json_data_tf:
+	issues_tf = json.load(json_data_tf)
 temp_issue = None
 for issue in issues:
 	if issue['number'] == 11257:
@@ -49,3 +62,9 @@ for issue in issues:
 print(temp_issue)
 print(find_closing_commit(temp_issue))
 #print(find_closing_pr(6723, prs))
+temp_issue_tf = None
+for issue in issues_tf:
+	if issue['number'] == 18477:
+		temp_issue_tf = issue
+		break
+print(get_assignees(temp_issue_tf))
