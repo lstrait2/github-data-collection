@@ -34,6 +34,6 @@ def get_pulls_query(repo, state):
 		# sleep before next iteration to avoid rate limiting
 		sleep(60)
 
-issues = get_pulls_query('tensorflow/tensorflow', 'closed')
-with open('data/tensorflow/tensorflow_pulls_closed.json', 'w') as f:
+issues = get_pulls_query('pytorch/pytorch', 'closed')
+with open('data/pytorch/pytorch_pulls_closed.json', 'w') as f:
     json.dump(issues, f, indent=4)
