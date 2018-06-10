@@ -5,7 +5,7 @@ import requests
 
 
 def label_issues(issues, all_prs):
-	for issue in issues[2000:3000]:
+	for issue in issues[3000:4000]:
 		issue['training_labels'] = {}
 		assignees = get_assignees(issue)
 		if assignees == []:
@@ -33,7 +33,7 @@ def label_issues(issues, all_prs):
 			issue['training_labels'][assignee] = label
 			print(issue['training_labels'])
 	#TODO: write out to labeled file
-	with open('data/flutter/flutter_ssues_labeled_3.json', 'w') as f:
+	with open('data/flutter/flutter_issues_labeled_4.json', 'w') as f:
 		json.dump(issues, f, indent=4)
 
 def find_closing_pr(issue_id, prs):
