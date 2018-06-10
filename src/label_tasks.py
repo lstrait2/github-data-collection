@@ -5,28 +5,36 @@ import requests
 
 
 def label_issues(issues, all_prs):
-	for issue in issues[:500]:
+	for issue in issues[2000:3000]:
 		issue['training_labels'] = {}
 		assignees = get_assignees(issue)
 		if assignees == []:
 			continue
 		prs = find_closing_pr(issue['number'], all_prs)
+		print(len(prs))
 		issue['matching_prs'] = prs
 		commits = find_closing_commit(issue)
+		print(len(commits))
 		issue['matching_commits'] = commits
 		assignees = get_assignees(issue)
 		for assignee in assignees:
+			print(assignee)
 			label = 0
 			for commit in commits:
-				if assignee == commit['author']['login']:
+				if 'author' in commit:
+					print("c: " + commit['author']['login'])
+				if commit and 'author' in commit and assignee == commit['author']['login']:
 					label = 1
 			for pr in prs:
-				if assignee == pr['user']['login']:
+				print("p: " + pr["user"]["login"])
+				if pr and assignee == pr['user']['login']:
 					label = 1
+			print(issue['url'])
 			issue['training_labels'][assignee] = label
+			print(issue['training_labels'])
 	#TODO: write out to labeled file
-	with open('data/react/react_issues_labeled1.json', 'w') as f:
-		json.dump(issues[:500], f, indent=4)
+	with open('data/flutter/flutter_ssues_labeled_3.json', 'w') as f:
+		json.dump(issues, f, indent=4)
 
 def find_closing_pr(issue_id, prs):
 	""" Find the PR(s) that reference the given issue. That is it cotains "#{issue_id}" in its title or body """
@@ -85,16 +93,17 @@ def get_assignees(issue):
 
 
 
-with open('data/react/react_pulls_closed.json') as json_data:
+with open('data/flutter/flutter_pulls_closed.json') as json_data:
     prs = json.load(json_data)
-with open('data/react/react_issues_closed.json') as json_data:
+with open('data/flutter/flutter_issues_closed.json') as json_data:
 	issues = json.load(json_data)
 with open('data/tensorflow/tensorflow_issues_closed.json') as json_data_tf:
 	issues_tf = json.load(json_data_tf)
-
+with open('data/tensorflow/tensorflow_pulls_closed.json') as json_data:
+    prs_tf = json.load(json_data)
 temp_issue = None
 for issue in issues:
-	if issue['number'] == 915:
+	if issue['number'] == 2988:
 		temp_issue = issue
 		break
 print(label_issues(issues, prs))
