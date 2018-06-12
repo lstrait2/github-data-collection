@@ -5,7 +5,7 @@ import requests
 
 
 def label_issues(issues, all_prs):
-	for issue in issues[5000:6000]:
+	for issue in issues[6000:7000]:
 		issue['training_labels'] = {}
 		assignees = get_assignees(issue)
 		if assignees == []:
@@ -33,15 +33,21 @@ def label_issues(issues, all_prs):
 			issue['training_labels'][assignee] = label
 			print(issue['training_labels'])
 	#TODO: write out to labeled file
-	with open('data/flutter/flutter_issues_labeled_6.json', 'w') as f:
+	with open('data/flutter/flutter_issues_labeled_7.json', 'w') as f:
 		json.dump(issues, f, indent=4)
+
 
 def find_closing_pr(issue_id, prs):
 	""" Find the PR(s) that reference the given issue. That is it cotains "#{issue_id}" in its title or body """
 	ret = []
 	issue_id_string = "#" + str(issue_id) 
 	for pr in prs:
-		if re.search(issue_id_string + r'[\b\n.]', pr['title']) or (pr['body'] and re.search(issue_id_string + r'[\b\n.]', pr['body'])):
+		# for regex, don't want #123 to match issues with same prefix (#1234)
+		if re.search(issue_id_string + r'[\b\n.a-zA-Z]', pr['title']) or (pr['body'] and re.search(issue_id_string + r'[\b\n.a-zA-Z]', pr['body'])):
+			if (re.search(issue_id_string + r'[a-zA-Z]', pr['title'])):
+				print(pr['title'])
+			if (re.search(issue_id_string + r'[a-zA-Z]', pr['body'])):
+				print(pr['body'])
 			if 'pull_request' not in pr:
 				pr_details = pr
 			else:
@@ -101,10 +107,10 @@ with open('data/tensorflow/tensorflow_pulls_closed.json') as json_data:
     prs_tf = json.load(json_data)
 temp_issue = None
 for issue in issues:
-	if issue['number'] == 2988:
+	if issue['number'] == 16753:
 		temp_issue = issue
 		break
-print(label_issues(issues, prs))
+print(label_issues([temp_issue], prs))
 
 #print(find_closing_commit(temp_issue))
 #print(find_closing_pr(6723, prs))
