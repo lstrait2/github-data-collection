@@ -42,9 +42,7 @@ def find_closing_pr(issue_id, prs):
 	issue_id_string = "#" + str(issue_id) 
 	for pr in prs:
 		if re.search(issue_id_string + r'[\b\n.]', pr['title']) or (pr['body'] and re.search(issue_id_string + r'[\b\n.]', pr['body'])):
-			# TODO: move this enrichment of PR data somewhere else...
 			if 'pull_request' not in pr:
-				print("this is weird")
 				pr_details = pr
 			else:
 				pr_details = requests.get(pr['pull_request']['url'], auth=(os.environ['GITHUB_USERNAME'], os.environ['GITHUB_PASSWORD'])).json()
