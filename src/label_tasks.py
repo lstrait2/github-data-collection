@@ -43,11 +43,7 @@ def find_closing_pr(issue_id, prs):
 	issue_id_string = "#" + str(issue_id) 
 	for pr in prs:
 		# for regex, don't want #123 to match issues with same prefix (#1234)
-		if re.search(issue_id_string + r'[\b\n.a-zA-Z]', pr['title']) or (pr['body'] and re.search(issue_id_string + r'[\b\n.a-zA-Z]', pr['body'])):
-			if (re.search(issue_id_string + r'[a-zA-Z]', pr['title'])):
-				print(pr['title'])
-			if (re.search(issue_id_string + r'[a-zA-Z]', pr['body'])):
-				print(pr['body'])
+		if re.search(issue_id_string + r'[\b\n.', pr['title']) or (pr['body'] and re.search(issue_id_string + r'[\b\n.]', pr['body'])):
 			if 'pull_request' not in pr:
 				pr_details = pr
 			else:
