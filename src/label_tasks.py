@@ -36,6 +36,44 @@ def label_issues(issues, all_prs):
 	with open('data/flutter/flutter_issues_labeled_9.json', 'w') as f:
 		json.dump(issues, f, indent=4)
 
+def label_issues_comments(issues, prs_comments):
+	for issue in issues:
+		prs = find_closing_prs_comments(issue['number'], prs_comments)
+		if prs != []:
+			print(len(prs))
+			if 'matching_ptrs' in issue:
+				issue['matching_prs'] += prs
+			else:
+				issue['matching_ptrs'] = prs
+		assignees = issue['training_labels'].keys()
+		for assignee in assignees:
+			#print(assignee)
+			label = 0
+			for pr in prs:
+				print("p: " + pr["user"]["login"])
+				if pr and assignee == pr['user']['login']:
+					label = 1
+				print(issue['url'])
+				print(issue['training_labels'])
+				issue['training_labels'][assignee] = max(issue['training_labels'][assignee], label)
+				print(issue['training_labels'])
+
+
+def find_closing_prs_comments(issue_id, prs):
+	ret = [] 
+	issue_id_string = "#" + str(issue_id) 
+	for pr in prs:
+		for comment in pr['comments']:
+			if comment['body'] and re.search(issue_id_string + r'[\b\n.]', comment['body']):
+				if 'pull_request' not in pr:
+					pr_details = pr
+				else:
+					pr_details = requests.get(pr['pull_request']['url'], auth=(os.environ['GITHUB_USERNAME'], os.environ['GITHUB_PASSWORD'])).json()
+				# only want to consider PRs that were merged into master
+				if pr_details['merged'] and pr_details not in ret:
+					ret.append(pr_details)
+	return ret
+
 
 def find_closing_pr(issue_id, prs):
 	""" Find the PR(s) that reference the given issue. That is it cotains "#{issue_id}" in its title or body """
@@ -91,8 +129,6 @@ def get_assignees(issue):
 
 
 
-
-
 with open('data/flutter/flutter_pulls_closed.json') as json_data:
     prs = json.load(json_data)
 with open('data/flutter/flutter_issues_closed.json') as json_data:
@@ -101,12 +137,22 @@ with open('data/tensorflow/tensorflow_issues_closed.json') as json_data_tf:
 	issues_tf = json.load(json_data_tf)
 with open('data/tensorflow/tensorflow_pulls_closed.json') as json_data:
     prs_tf = json.load(json_data)
+
+with open('data/flutter/flutter_pulls_comments.json') as json_data:
+    prs_comments = json.load(json_data)
+with open('data/flutter/flutter_issues_labeled.json') as json_data:
+	labeled_issues = json.load(json_data)
 temp_issue = None
-for issue in issues:
-	if issue['number'] == 16753:
+for issue in labeled_issues:
+	if issue['number'] == 90:
 		temp_issue = issue
 		break
-print(label_issues(issues, prs))
+temp_pr = None
+for pr in prs_comments:
+	if pr['number'] == 696:
+		temp_pr = pr
+		break
+print(label_issues_comments(labeled_issues, prs_comments))
 
 #print(find_closing_commit(temp_issue))
 #print(find_closing_pr(6723, prs))

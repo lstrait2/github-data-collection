@@ -37,10 +37,10 @@ def get_pulls_query(repo, state):
 
 
 def get_comments_for_pulls(prs):
-	for pr in prs[:2500]:
+	for pr in prs[2500:]:
 		comments = requests.get(pr['comments_url'], auth=(os.environ['GITHUB_USERNAME'], os.environ['GITHUB_PASSWORD'])).json()
 		pr['comments'] = comments
-	with open('data/flutter/flutter_pulls_comments_1.json', 'w') as f:
+	with open('data/flutter/flutter_pulls_comments_2.json', 'w') as f:
 		json.dump(prs, f, indent=4)
 
 
