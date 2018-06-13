@@ -33,15 +33,15 @@ def get_pulls_query(repo, state):
 		issues.extend(r.json()['items'])
 		date = issues[-1]['created_at'][:10]
 		# sleep before next iteration to avoid rate limiting
-		sleep(60)for pr in prs:
+		sleep(60)
 
 
-def get_comments_for_pull(prs):
+def get_comments_for_pulls(prs):
 	for pr in prs[:2500]:
 		comments = requests.get(pr['comments_url'], auth=(os.environ['GITHUB_USERNAME'], os.environ['GITHUB_PASSWORD'])).json()
 		pr['comments'] = comments
 	with open('data/flutter/flutter_pulls_comments_1.json', 'w') as f:
-    json.dump(prs, f, indent=4)
+		json.dump(prs, f, indent=4)
 
 
 '''
@@ -49,5 +49,6 @@ issues = get_pulls_query('flutter/flutter', 'closed')
 with open('data/flutter/flutter_pulls_closed.json', 'w') as f:
     json.dump(issues, f, indent=4)
 '''
-
+with open('data/flutter/flutter_pulls_closed.json') as json_data:
+    prs = json.load(json_data)
 get_comments_for_pulls(prs)
