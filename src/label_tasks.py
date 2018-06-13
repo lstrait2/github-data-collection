@@ -5,7 +5,7 @@ import requests
 
 
 def label_issues(issues, all_prs):
-	for issue in issues[6000:7000]:
+	for issue in issues:
 		issue['training_labels'] = {}
 		assignees = get_assignees(issue)
 		if assignees == []:
@@ -33,7 +33,7 @@ def label_issues(issues, all_prs):
 			issue['training_labels'][assignee] = label
 			print(issue['training_labels'])
 	#TODO: write out to labeled file
-	with open('data/flutter/flutter_issues_labeled_7.json', 'w') as f:
+	with open('data/flutter/flutter_issues_labeled_9.json', 'w') as f:
 		json.dump(issues, f, indent=4)
 
 
@@ -106,7 +106,7 @@ for issue in issues:
 	if issue['number'] == 16753:
 		temp_issue = issue
 		break
-print(label_issues([temp_issue], prs))
+print(label_issues(issues, prs))
 
 #print(find_closing_commit(temp_issue))
 #print(find_closing_pr(6723, prs))
