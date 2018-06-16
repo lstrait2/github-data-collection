@@ -40,9 +40,10 @@ def label_issues_comments(issues, prs_comments):
 	for issue in issues:
 		prs = find_closing_prs_comments(issue['number'], prs_comments)
 		if prs != []:
-			print(len(prs))
-			if 'matching_ptrs' in issue:
+			if 'matching_prs' in issue:
+				print(len(issue['matching_prs']))
 				issue['matching_prs'] += prs
+				print(len(issue['matching_prs']))
 			else:
 				issue['matching_ptrs'] = prs
 		assignees = issue['training_labels'].keys()
@@ -57,6 +58,8 @@ def label_issues_comments(issues, prs_comments):
 				print(issue['training_labels'])
 				issue['training_labels'][assignee] = max(issue['training_labels'][assignee], label)
 				print(issue['training_labels'])
+	with open('data/flutter/flutter_issues_labeled_2.json', 'w') as f:
+		json.dump(issues, f, indent=4)
 
 
 def find_closing_prs_comments(issue_id, prs):
