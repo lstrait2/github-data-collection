@@ -7,8 +7,7 @@ algorithm or code changes.
 
 def preprocess_issue(issue):
 	""" Remove code from issue templates and any other pre-processing that needs done """
-	templates = ["Note: if the issue is about documentation or the website, please file it at:", "Do you want to request a feature or report a bug?", 
-	"What is the current behavior?", "What is the expected behavior?", "Which versions of React, and which browser / OS are affected by this issue? Did this work in previous versions of React?"]
+	templates = []
 	issue_body = issue['body']
 	if not issue_body:
 		return issue
