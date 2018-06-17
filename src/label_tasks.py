@@ -5,12 +5,14 @@ import requests
 
 
 def label_issues(issues, all_prs):
-	for issue in issues:
+	for issue in issues[:1000]:
 		issue['training_labels'] = {}
 		assignees = get_assignees(issue)
 		if assignees == []:
 			continue
 		prs = find_closing_pr(issue['number'], all_prs)
+		print(len(prs))
+		prs += find_closing_prs_comments(issue['number'], all_prs)
 		print(len(prs))
 		issue['matching_prs'] = prs
 		commits = find_closing_commit(issue)
@@ -33,7 +35,7 @@ def label_issues(issues, all_prs):
 			issue['training_labels'][assignee] = label
 			print(issue['training_labels'])
 	#TODO: write out to labeled file
-	with open('data/flutter/flutter_issues_labeled_9.json', 'w') as f:
+	with open('data/flutter/flutter_issues_labeled_1.json', 'w') as f:
 		json.dump(issues, f, indent=4)
 
 def label_issues_comments(issues, prs_comments):
@@ -64,10 +66,13 @@ def label_issues_comments(issues, prs_comments):
 
 def find_closing_prs_comments(issue_id, prs):
 	ret = [] 
-	issue_id_string = "#" + str(issue_id) 
+	issue_id_string = "#" + str(issue_id)
+	issue_id_string2 = "/" + str(issue_id) 
 	for pr in prs:
 		for comment in pr['comments']:
-			if comment['body'] and re.search(issue_id_string + r'[\b\n.]', comment['body']):
+			print(comment)
+			print(re.search(issue_id_string2 + r'(?!\d)', comment['body']))
+			if comment['body'] and (re.search(issue_id_string + r'(?!\d)', comment['body']) or re.search(issue_id_string2 + r'(?!\d)', comment['body'])):
 				if 'pull_request' not in pr:
 					pr_details = pr
 				else:
@@ -82,9 +87,10 @@ def find_closing_pr(issue_id, prs):
 	""" Find the PR(s) that reference the given issue. That is it cotains "#{issue_id}" in its title or body """
 	ret = []
 	issue_id_string = "#" + str(issue_id) 
+	issue_id_string2 = "/" + str(issue_id)
 	for pr in prs:
 		# for regex, don't want #123 to match issues with same prefix (#1234)
-		if re.search(issue_id_string + r'[\b\n.]', pr['title']) or (pr['body'] and re.search(issue_id_string + r'[\b\n.]', pr['body'])):
+		if re.search(issue_id_string + r'(?!\d)', pr['title']) or (pr['body'] and re.search(issue_id_string + r'(?!\d)', pr['body'])) or (pr['body'] and re.search(issue_id_string2 + r'(?!\d)', pr['body'])):
 			if 'pull_request' not in pr:
 				pr_details = pr
 			else:
@@ -147,21 +153,25 @@ with open('data/flutter/flutter_issues_labeled.json') as json_data:
 	labeled_issues = json.load(json_data)
 temp_issue = None
 for issue in labeled_issues:
-	if issue['number'] == 90:
+	if issue['number'] == 140:
 		temp_issue = issue
 		break
 temp_pr = None
 for pr in prs_comments:
-	if pr['number'] == 696:
+	if pr['number'] == 830:
 		temp_pr = pr
 		break
-print(label_issues_comments(labeled_issues, prs_comments))
+
+print(label_issues([temp_issue], [temp_pr]))
+#print(label_issues(issues, prs_comments))
 
 #print(find_closing_commit(temp_issue))
 #print(find_closing_pr(6723, prs))
+'''
 temp_issue_tf = None
 for issue in issues_tf:
 	if issue['number'] == 18477:
 		temp_issue_tf = issue
 		break
+'''
 #print(get_assignees(temp_issue_tf))
