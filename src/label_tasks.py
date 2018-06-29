@@ -3,9 +3,38 @@ import os
 import re
 import requests
 
+def label_issues_no_assignee(issues, all_prs):
+	""" Label issues by who actually completed them """
+	for issue in issues[:1000]:
+		print(issue['url'])
+		issue['training_labels'] = {}
+		assignees = get_assignees(issue)
+		if assignees == []:
+			continue
+		prs = find_closing_pr(issue['number'], all_prs)
+		print(len(prs))
+		prs += find_closing_prs_comments(issue['number'], all_prs)
+		print(len(prs))
+		issue['matching_prs'] = prs
+		commits = find_closing_commit(issue)
+		print(len(commits))
+		issue['matching_commits'] = commits
+		completed_by = set()
+		for commit in commits:
+			if commit and 'author' in commit:
+				completed_by.add(commit['author']['login'])
+		for pr in prs:
+			if pr:
+				completed_by.add(pr['user']['login'])
+		print(completed_by)
+		issue['completed_by'] = completed_by
+	# write out to labeled file
+	with open('data/flutter/flutter_issues_labeled_1.json', 'w') as f:
+		json.dump(issues[:1000], f, indent=4)
+
 
 def label_issues(issues, all_prs):
-	for issue in issues[:1000]:
+	for issue in issues[:1500]:
 		issue['training_labels'] = {}
 		assignees = get_assignees(issue)
 		if assignees == []:
@@ -35,8 +64,8 @@ def label_issues(issues, all_prs):
 			issue['training_labels'][assignee] = label
 			print(issue['training_labels'])
 	#TODO: write out to labeled file
-	with open('data/flutter/flutter_issues_labeled_1.json', 'w') as f:
-		json.dump(issues, f, indent=4)
+	with open('data/flutter/flutter_issues_labeled_8.json', 'w') as f:
+		json.dump(issues[7000:8000], f, indent=4)
 
 def label_issues_comments(issues, prs_comments):
 	for issue in issues:
@@ -67,11 +96,9 @@ def label_issues_comments(issues, prs_comments):
 def find_closing_prs_comments(issue_id, prs):
 	ret = [] 
 	issue_id_string = "#" + str(issue_id)
-	issue_id_string2 = "/" + str(issue_id) 
+	issue_id_string2 = "issues/" + str(issue_id) 
 	for pr in prs:
 		for comment in pr['comments']:
-			print(comment)
-			print(re.search(issue_id_string2 + r'(?!\d)', comment['body']))
 			if comment['body'] and (re.search(issue_id_string + r'(?!\d)', comment['body']) or re.search(issue_id_string2 + r'(?!\d)', comment['body'])):
 				if 'pull_request' not in pr:
 					pr_details = pr
@@ -87,7 +114,7 @@ def find_closing_pr(issue_id, prs):
 	""" Find the PR(s) that reference the given issue. That is it cotains "#{issue_id}" in its title or body """
 	ret = []
 	issue_id_string = "#" + str(issue_id) 
-	issue_id_string2 = "/" + str(issue_id)
+	issue_id_string2 = "issues/" + str(issue_id)
 	for pr in prs:
 		# for regex, don't want #123 to match issues with same prefix (#1234)
 		if re.search(issue_id_string + r'(?!\d)', pr['title']) or (pr['body'] and re.search(issue_id_string + r'(?!\d)', pr['body'])) or (pr['body'] and re.search(issue_id_string2 + r'(?!\d)', pr['body'])):
@@ -149,10 +176,10 @@ with open('data/tensorflow/tensorflow_pulls_closed.json') as json_data:
 
 with open('data/flutter/flutter_pulls_comments.json') as json_data:
     prs_comments = json.load(json_data)
-with open('data/flutter/flutter_issues_labeled.json') as json_data:
-	labeled_issues = json.load(json_data)
+
+'''
 temp_issue = None
-for issue in labeled_issues:
+for issue in issues:
 	if issue['number'] == 140:
 		temp_issue = issue
 		break
@@ -161,9 +188,10 @@ for pr in prs_comments:
 	if pr['number'] == 830:
 		temp_pr = pr
 		break
+'''
 
-print(label_issues([temp_issue], [temp_pr]))
-#print(label_issues(issues, prs_comments))
+#print(label_issues([temp_issue], [temp_pr]))
+print(label_issues_no_assignee(issues, prs_comments))
 
 #print(find_closing_commit(temp_issue))
 #print(find_closing_pr(6723, prs))
