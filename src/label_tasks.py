@@ -189,14 +189,3 @@ for pr in prs_comments:
 
 #print(label_issues([temp_issue], [temp_pr]))
 print(label_issues_no_assignee(issues, prs_comments))
-
-#print(find_closing_commit(temp_issue))
-#print(find_closing_pr(6723, prs))
-'''
-temp_issue_tf = None
-for issue in issues_tf:
-	if issue['number'] == 18477:
-		temp_issue_tf = issue
-		break
-'''
-#print(get_assignees(temp_issue_tf))
