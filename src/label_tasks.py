@@ -5,7 +5,7 @@ import requests
 
 def label_issues_no_assignee(issues, all_prs):
 	""" Label issues by who actually completed them """
-	for issue in issues[6000:7000]:
+	for issue in issues[8000:9000]:
 		print(issue['url'])
 		issue['training_labels'] = {}
 		prs = find_closing_pr(issue['number'], all_prs)
@@ -26,8 +26,8 @@ def label_issues_no_assignee(issues, all_prs):
 		print(completed_by)
 		issue['completed_by'] = list(completed_by)
 	# write out to labeled file
-	with open('data/flutter/flutter_issues_labeled_7.json', 'w') as f:
-		json.dump(issues[6000:7000], f, indent=4)
+	with open('data/flutter/flutter_issues_labeled_9.json', 'w') as f:
+		json.dump(issues[8000:9000], f, indent=4)
 
 
 def label_issues(issues, all_prs):
