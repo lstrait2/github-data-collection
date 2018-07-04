@@ -96,8 +96,6 @@ def get_num_code_lines(issue):
 	""" Return the number of lines of (formatted) code in the body of an issue """
 	return sum([len(s) for s in get_code_in_issue(issue)])
 
-'''
-issues = get_issues_query('nodejs/node', 'open')
-with open('data/nodejs/nodejs_issues_open.json', 'w') as f:
+issues = get_issues_query('flutter/flutter', 'open')
+with open('data/flutter/flutter_issues_open.json', 'w') as f:
     json.dump(issues, f, indent=4)
-'''
