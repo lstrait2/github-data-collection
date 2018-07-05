@@ -12,7 +12,9 @@ for bug_id in range(2,3):
 	status = soup.select("#static_bug_status")[0].text
 	product = soup.select("#field_container_product")[0].text
 	component = soup.select("#field_container_component")[0].text
-	duplicates = soup.select("#duplicates")[0].select("a")[0]['href']
+	duplicates = []
+	for duplicate in soup.select("#duplicates")[0].select("a"):
+		duplicates.append(duplicate.text)
 	#TODO: select only the date/time here
 	created_at = soup.select("#bz_show_bug_column_2")[0].select("td")[0].text
 	print(duplicates)
