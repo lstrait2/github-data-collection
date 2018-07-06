@@ -4,12 +4,16 @@ from urllib.request import urlopen
 
 
 issues = []
-for bug_id in range(1,1000):
+for bug_id in range(2000,3000):
 	print("getting issue: #" + str(bug_id))
 	bug_url = 'https://bugs.eclipse.org/bugs/show_bug.cgi?id=' + str(bug_id)
 	page = urlopen(bug_url)
 	soup = BeautifulSoup(page, 'html.parser')	
-	short_desc = soup.select("#short_desc_nonedit_display")[0].text
+	short_desc = soup.select("#short_desc_nonedit_display")
+	# if not a valid bug, move onto the next
+	if not short_desc:
+		continue
+	short_desc = short_desc[0].text
 	long_desc = soup.select(".bz_first_comment")[0].select(".bz_comment_text")[0].text
 	status = soup.select("#static_bug_status")[0].text
 	product = soup.select("#field_container_product")[0].text
@@ -38,7 +42,7 @@ for bug_id in range(1,1000):
 	completed_by = None
 	completed_time = None
 	for idx, row in enumerate(data):
-		if len(row) > 4 and row[4] == 'RESOLVED' and len(data[idx+1]) > 2 and data[idx+1][2] == 'FIXED':
+		if len(row) > 4 and row[4] == 'RESOLVED' and (idx + 1) < len(data) and len(data[idx+1]) > 2 and data[idx+1][2] == 'FIXED':
 			completed_by = row[0]
 			completed_time = row[1]
 			break
@@ -55,6 +59,6 @@ for bug_id in range(1,1000):
 	issue['created_at'] = created_at
 	issues.append(issue)
 
-with open('data/eclipse/eclpise_issues1.json', 'w') as f:
+with open('data/eclipse/eclpise_issues3.json', 'w') as f:
     json.dump(issues, f, indent=4)
 
