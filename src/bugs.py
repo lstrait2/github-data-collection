@@ -1,10 +1,11 @@
 import json
+import time
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
 
 
 issues = []
-for bug_id in range(7000,10000):
+for bug_id in range(10000,50000):
 	print("getting issue: #" + str(bug_id))
 	bug_url = 'https://bugs.eclipse.org/bugs/show_bug.cgi?id=' + str(bug_id)
 	page = urlopen(bug_url)
@@ -58,8 +59,8 @@ for bug_id in range(7000,10000):
 	issue['completed_at'] = completed_time
 	issue['created_at'] = created_at
 	issues.append(issue)
-	sleep(5)
+	time.sleep(5)
 
-with open('data/eclipse/eclpise_issues6.json', 'w') as f:
+with open('data/eclipse/eclpise_issues7.json', 'w') as f:
     json.dump(issues, f, indent=4)
 
