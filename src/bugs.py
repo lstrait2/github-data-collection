@@ -59,7 +59,6 @@ for bug_id in range(10000,50000):
 	issue['completed_at'] = completed_time
 	issue['created_at'] = created_at
 	issues.append(issue)
-	time.sleep(5)
 
 with open('data/eclipse/eclpise_issues7.json', 'w') as f:
     json.dump(issues, f, indent=4)
