@@ -1,14 +1,21 @@
 import json
 import time
 from bs4 import BeautifulSoup
-from urllib.request import urlopen
-
+#from urllib.request import urlopen
+import requests
 
 issues = []
-for bug_id in range(10000,50000):
+for bug_id in range(20000,50000):
 	print("getting issue: #" + str(bug_id))
 	bug_url = 'https://bugs.eclipse.org/bugs/show_bug.cgi?id=' + str(bug_id)
-	page = urlopen(bug_url)
+	for i in range(0,10):
+		try:
+			page = requests.get(bug_url, headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36'}).text
+		except:
+			print("connection failed")
+			time.sleep(60)
+			continue
+		break
 	soup = BeautifulSoup(page, 'html.parser')	
 	short_desc = soup.select("#short_desc_nonedit_display")
 	# if not a valid bug, move onto the next
@@ -29,7 +36,14 @@ for bug_id in range(10000,50000):
 
 	# scrape the page with the updates, need to find who marked as fixed and when
 	bug_history_url = 'https://bugs.eclipse.org/bugs/show_activity.cgi?id=' + str(bug_id)
-	page = urlopen(bug_history_url)
+	for i in range(0,10):
+	    try:
+	        page = requests.get(bug_history_url, headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36'}).text
+	    except:
+	    	print("connection failed")
+	    	time.sleep(60)
+	    	continue
+	    break
 	soup = BeautifulSoup(page, 'html.parser')	
 	data = []
 	table = soup.find('table', attrs={'id':'bug_activity'})
@@ -60,6 +74,6 @@ for bug_id in range(10000,50000):
 	issue['created_at'] = created_at
 	issues.append(issue)
 
-with open('data/eclipse/eclpise_issues7.json', 'w') as f:
+with open('data/eclipse/eclpise_issues8.json', 'w') as f:
     json.dump(issues, f, indent=4)
 
