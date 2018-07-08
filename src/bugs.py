@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 import requests
 
 issues = []
-for bug_id in range(20000,50000):
+for bug_id in range(125000,175000):
 	print("getting issue: #" + str(bug_id))
 	bug_url = 'https://bugs.eclipse.org/bugs/show_bug.cgi?id=' + str(bug_id)
 	for i in range(0,10):
@@ -47,6 +47,8 @@ for bug_id in range(20000,50000):
 	soup = BeautifulSoup(page, 'html.parser')	
 	data = []
 	table = soup.find('table', attrs={'id':'bug_activity'})
+	if not table:
+		continue
 	table_body = table.find('tbody')
 	rows = table.find_all('tr')
 	for row in rows:
@@ -74,6 +76,6 @@ for bug_id in range(20000,50000):
 	issue['created_at'] = created_at
 	issues.append(issue)
 
-with open('data/eclipse/eclpise_issues8.json', 'w') as f:
+with open('data/eclipse/eclpise_issues11.json', 'w') as f:
     json.dump(issues, f, indent=4)
 
