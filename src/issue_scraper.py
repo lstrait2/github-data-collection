@@ -60,6 +60,6 @@ for issue_num in range(1,100):
 	issue['master_commits'] = master_commits
 	issue['local_commits'] = local_commits
 	issues.append(issue)
-with open('data/flutter/flutter/issues_prs_1.json', 'w') as f:
+with open('data/flutter/issues_prs_1.json', 'w') as f:
     json.dump(issues, f, indent=4)
 print(issues)
