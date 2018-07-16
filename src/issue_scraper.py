@@ -18,7 +18,6 @@ for issue_num in range(1,100):
 		break
 	soup = BeautifulSoup(page, 'html.parser')
 	# looking at a PR and not an issue
-	print(soup.select(".pull-request-tab-content"))
 	if soup.select(".pull-request-tab-content"):
 		continue
 	# get all immediate children
@@ -54,7 +53,6 @@ for issue_num in range(1,100):
 				merged_prs.append(d)
 			else:
 				failed_prs.append(d)
-	#TODO: add commit and PR authors
 	issue = {}
 	issue['issue_num'] = issue_num
 	issue['merged_prs'] = merged_prs
