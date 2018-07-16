@@ -21,14 +21,15 @@ for issue_num in range(1,100):
 	if soup.select(".pull-request-tab-content"):
 		continue
 	# get all immediate children
-	timeline = soup.select(".js-timeline-item")[0].findChildren(recursive=False)
+	#timeline = soup.select(".js-timeline-item")[0].findChildren(recursive=False)
+	timeline = soup.select(".discussion-item")
 	merged_prs = []
 	failed_prs = []
 	master_commits = []
 	local_commits = []
 	for event in timeline:
 		# break if this is where the issue is closed
-		if event.get('class')[0] == 'closed-banner':
+		if len(event.get('class')) > 1 and event.get('class')[1] == 'discussion-item-closed':
 			break
 		# get any commits for the issue
 		if len(event.get('class')) > 1 and event.get('class')[1] == 'discussion-commits':
