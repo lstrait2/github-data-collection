@@ -4,7 +4,9 @@ import requests
 from bs4 import BeautifulSoup
  
 issues = []
-for issue_num in range(1,100):
+for issue_num in range(5000,19443):
+	if issue_num % 50 == 0:
+		time.sleep(60)
 	print("getting issue: #" + str(issue_num))
 	issue_url = 'https://github.com/flutter/flutter/issues/' + str(issue_num)
 	root = "/flutter/flutter"
@@ -47,13 +49,25 @@ for issue_num in range(1,100):
 		else:
 			title = ""
 		if "pull" in title:
-			author = event.select(".author")[0].text
-			d = {"pull": title, "author":author}
+			author = event.select(".author")
+			#TODO: need to handle Null authors after
+			if author:
+				author = author[0].text
+			else:
+				author = None
+			d = {"pull": title, "author": author}
 			state = event.select(".State")[0].text.strip()
 			if state == "Merged":
 				merged_prs.append(d)
 			else:
 				failed_prs.append(d)
+	# try to find PRs from comments on the issue
+	comment_links = soup.select(".issue-link")
+	for link in comment_links:
+		link = link['href'].replace("https://github.com", "")
+		if "pull" in link and link not in merged_prs:
+			d = {"pull":link, "author":None}
+			merged_prs.append(d)
 	issue = {}
 	issue['issue_num'] = issue_num
 	issue['merged_prs'] = merged_prs
@@ -61,6 +75,6 @@ for issue_num in range(1,100):
 	issue['master_commits'] = master_commits
 	issue['local_commits'] = local_commits
 	issues.append(issue)
-with open('data/flutter/issues_prs_1.json', 'w') as f:
+with open('data/flutter/issues_prs_3.json', 'w') as f:
     json.dump(issues, f, indent=4)
 print(issues)
