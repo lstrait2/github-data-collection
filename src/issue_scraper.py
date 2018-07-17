@@ -4,9 +4,9 @@ import requests
 from bs4 import BeautifulSoup
  
 issues = []
-for issue_num in range(5000,19443):
-	if issue_num % 50 == 0:
-		time.sleep(60)
+for issue_num in range(1,1000):
+	if issue_num % 100 == 0:
+		time.sleep(30)
 	print("getting issue: #" + str(issue_num))
 	issue_url = 'https://github.com/flutter/flutter/issues/' + str(issue_num)
 	root = "/flutter/flutter"
@@ -62,7 +62,10 @@ for issue_num in range(5000,19443):
 			else:
 				failed_prs.append(d)
 	# try to find PRs from comments on the issue
-	comment_links = soup.select(".issue-link")
+	comments = soup.select(".js-comment-container")
+	comment_links = []
+	for comment in comments:
+		comment_links.extend(comment.select(".issue-link"))
 	for link in comment_links:
 		link = link['href'].replace("https://github.com", "")
 		if "pull" in link and link not in merged_prs:
@@ -75,6 +78,6 @@ for issue_num in range(5000,19443):
 	issue['master_commits'] = master_commits
 	issue['local_commits'] = local_commits
 	issues.append(issue)
-with open('data/flutter/issues_prs_3.json', 'w') as f:
+with open('data/flutter/issues_prs_1.json', 'w') as f:
     json.dump(issues, f, indent=4)
 print(issues)
