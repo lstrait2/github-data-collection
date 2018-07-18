@@ -4,7 +4,7 @@ import requests
 from bs4 import BeautifulSoup
  
 issues = []
-for issue_num in range(1,1000):
+for issue_num in range(1000,19479):
 	if issue_num % 100 == 0:
 		time.sleep(30)
 	print("getting issue: #" + str(issue_num))
@@ -78,6 +78,6 @@ for issue_num in range(1,1000):
 	issue['master_commits'] = master_commits
 	issue['local_commits'] = local_commits
 	issues.append(issue)
-with open('data/flutter/issues_prs_1.json', 'w') as f:
+with open('data/flutter/issues_prs_2.json', 'w') as f:
     json.dump(issues, f, indent=4)
 print(issues)
