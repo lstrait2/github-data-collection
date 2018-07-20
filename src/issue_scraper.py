@@ -4,12 +4,12 @@ import requests
 from bs4 import BeautifulSoup
  
 issues = []
-for issue_num in range(1000,19479):
+for issue_num in range(10000,13246):
 	if issue_num % 100 == 0:
 		time.sleep(30)
 	print("getting issue: #" + str(issue_num))
-	issue_url = 'https://github.com/flutter/flutter/issues/' + str(issue_num)
-	root = "/flutter/flutter"
+	issue_url = 'https://github.com/facebook/react/issues/' + str(issue_num)
+	root = "/facebook/react"
 	for i in range(0,10):
 		try:
 			page = requests.get(issue_url, headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36'}).text
@@ -35,6 +35,8 @@ for issue_num in range(1000,19479):
 			break
 		# get any commits for the issue
 		if len(event.get('class')) > 1 and event.get('class')[1] == 'discussion-commits':
+			if len(event.select(".message")) == 0:
+				continue
 			commit = event.select(".message")[0]['href']
 			author = event.select(".author")[0].text
 			d = {"commit": commit, "author":author}
@@ -71,6 +73,26 @@ for issue_num in range(1000,19479):
 		if "pull" in link and link not in merged_prs:
 			d = {"pull":link, "author":None}
 			merged_prs.append(d)
+	# looking at a PR and not an issue
+	if soup.select(".pull-request-tab-content") or len(soup.select(".discussion-item-closed")) == 0:
+		continue
+	# get all immediate children
+	if len(soup.select(".discussion-item-closed")) == 0:
+		print("closing")
+		continue
+	closed = soup.select(".discussion-item-closed")[0]
+	if len(closed.select(".author")) == 0 or not closed.select(".author")[0].has_attr('href'):
+		print("closing2")
+		continue
+	author = closed.select(".author")[0]['href']
+	closed_text = closed.text.replace(" ", "").replace("\n", "")
+	if "closedthisin" in closed_text:
+		if len(closed.select("code")) > 0:
+			closing_commit = closed.select("code")[0].select("a")[0]['href']
+			d = {}
+			d['commit'] = closing_commit
+			d['author'] = author
+			master_commits.append(d)
 	issue = {}
 	issue['issue_num'] = issue_num
 	issue['merged_prs'] = merged_prs
@@ -78,6 +100,6 @@ for issue_num in range(1000,19479):
 	issue['master_commits'] = master_commits
 	issue['local_commits'] = local_commits
 	issues.append(issue)
-with open('data/flutter/issues_prs_2.json', 'w') as f:
+with open('data/react/issues_prs_3.json', 'w') as f:
     json.dump(issues, f, indent=4)
 print(issues)

@@ -6,15 +6,29 @@ from requests.auth import HTTPBasicAuth
 def get_author_pr(pr_url):
 	# pr_url looks like '/flutter/flutter/pull/297'
 	pr_url = pr_url.replace('pull', 'pulls')
-	r = requests.get('https://api.github.com/repos' + pr_url, auth=HTTPBasicAuth('user', 'pass')).json()
-	if 'user' not in r:
-		return None, False
-	return r['user']['login'], r['merged']
+	r = requests.get('https://api.github.com/repos' + pr_url, auth=HTTPBasicAuth('user', 'password')).json()
+	if 'merged' not in r:
+		print("fail")
+		return False
+	return r['merged'] and pr_url.startswith('/flutter')
 
-with open('data/flutter/issues_prs.json') as json_data:
+with open('data/flutter/flutter_issues_prs_final_4.json') as json_data:
     issues_prs = json.load(json_data)
 
-for issue_pr in issues_prs[10000:]:
+for issue_pr in issues_prs:
+	merged_prs = []
+	for pr in issue_pr['failed_prs']:
+		if get_author_pr(pr['pull']):
+			print(issue_pr['issue_num'])
+			print("merged: " + pr['pull'])
+			merged_prs.append(pr)
+	for pr in merged_prs:
+		issue_pr['failed_prs'].remove(pr)
+		issue_pr['merged_prs'].append(pr)
+with open('data/flutter/flutter_issues_prs_final_5.json', 'w') as f:
+    json.dump(issues_prs, f, indent=4)
+'''
+for issue_pr in issues_prs:
 	print(issue_pr['issue_num'])
 	remove_prs = []
 	for pr in issue_pr['merged_prs']:
@@ -37,4 +51,5 @@ for issue_pr in issues_prs[10000:]:
 			print("found unauthored commit " + commit)
 
 with open('data/flutter/flutter_issues_prs_10.json', 'w') as f:
-    json.dump(issues_prs[10000:], f, indent=4)
+    json.dump(issues_prs, f, indent=4)
+ '''

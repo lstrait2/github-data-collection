@@ -124,6 +124,23 @@ def find_closing_pr(issue_id, prs):
 				ret.append(pr_details)
 	return ret
 
+def find_failed_pr(issue_id, prs):
+	""" Find the PR(s) that reference the given issue. That is it cotains "#{issue_id}" in its title or body """
+	ret = []
+	issue_id_string = "#" + str(issue_id) 
+	issue_id_string2 = "issues/" + str(issue_id)
+	for pr in prs:
+		# for regex, don't want #123 to match issues with same prefix (#1234)
+		if re.search(issue_id_string + r'(?!\d)', pr['title']) or (pr['body'] and re.search(issue_id_string + r'(?!\d)', pr['body'])) or (pr['body'] and re.search(issue_id_string2 + r'(?!\d)', pr['body'])):
+			if 'pull_request' not in pr:
+				pr_details = pr
+			else:
+				pr_details = requests.get(pr['pull_request']['url'], auth=(os.environ['GITHUB_USERNAME'], os.environ['GITHUB_PASSWORD'])).json()
+			# only want to consider PRs that were merged into master
+			if pr_details['merged']:
+				ret.append(pr_details)
+	return ret
+
 
 def find_closing_commit(issue):
 	""" Find the commit that closes the given issue. That is a commit (for master branch) event exists for the issue """
